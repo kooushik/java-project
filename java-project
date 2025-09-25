@@ -1,0 +1,155 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+// Abstract class demonstrating encapsulation, abstraction, inheritance, polymorphism
+abstract class Vehicle {
+    private final String vin;       // final field - immutable after construction
+    private String brand;
+    private static int vehicleCount = 0;  // static field shared by all instances
+
+    // Constructor
+    public Vehicle(String vin, String brand) {
+        this.vin = vin;
+        this.brand = brand;
+        vehicleCount++;
+    }
+
+    // Getters & setters (encapsulation)
+    public String getVin() {
+        return vin;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    // Abstract method (polymorphism)
+    public abstract void start();
+
+    // Static method to get total vehicles
+    public static int getVehicleCount() {
+        return vehicleCount;
+    }
+
+    // Final method - can't be overridden
+    public final void showInfo() {
+        System.out.println("VIN: " + vin + ", Brand: " + brand);
+    }
+}
+
+// Car class extending Vehicle
+class Car extends Vehicle {
+    private int doors;
+
+    public Car(String vin, String brand, int doors) {
+        super(vin, brand);
+        this.doors = doors;
+    }
+
+    @Override
+    public void start() {
+        System.out.println("Car starting with key...");
+    }
+
+    public int getDoors() {
+        return doors;
+    }
+}
+
+// Motorcycle class extending Vehicle
+class Motorcycle extends Vehicle {
+    private boolean hasSidecar;
+
+    public Motorcycle(String vin, String brand, boolean hasSidecar) {
+        super(vin, brand);
+        this.hasSidecar = hasSidecar;
+    }
+
+    @Override
+    public void start() {
+        System.out.println("Motorcycle starting with button...");
+    }
+
+    public boolean hasSidecar() {
+        return hasSidecar;
+    }
+}
+
+public class MainApp {
+
+    // Method to request garbage collection
+    public static void requestGC() {
+        System.gc();
+        System.out.println("Requested Garbage Collection");
+    }
+
+    // Optional JDBC connection method to MySQL
+    public static Connection connectToMySQL() {
+        String url = "jdbc:mysql://localhost:3306/your_database";
+        String user = "root";
+        String password = "your_password";
+
+        try {
+            Connection conn = DriverManager.getConnection(url, user, password);
+            System.out.println("Connected to MySQL successfully.");
+            return conn;
+        } catch (SQLException e) {
+            System.err.println("MySQL connection error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Object array of Vehicles (object array)
+        Vehicle[] vehicles = new Vehicle[3];
+        vehicles[0] = new Car("VIN123", "Toyota", 4);
+        vehicles[1] = new Motorcycle("VIN456", "Harley", true);
+        vehicles[2] = new Car("VIN789", "Honda", 2);
+
+        // Using Collection Framework to store Vehicles
+        ArrayList<Vehicle> vehicleList = new ArrayList<>();
+        for (Vehicle v : vehicles) {
+            vehicleList.add(v);
+        }
+
+        // Polymorphic behavior
+        for (Vehicle v : vehicleList) {
+            v.showInfo();    // final method
+            v.start();       // polymorphic call
+            System.out.println();
+        }
+
+        System.out.println("Total vehicles created: " + Vehicle.getVehicleCount());
+
+        // Exception handling demo
+        try {
+            System.out.println("Trying to access invalid array index:");
+            System.out.println(vehicles[5].getBrand());  // This will throw exception
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("Caught Exception: " + e.getMessage());
+        }
+
+        // Request garbage collection
+        requestGC();
+
+        // Optional: Uncomment below to test JDBC connection (make sure to have JDBC driver)
+        /*
+        Connection conn = connectToMySQL();
+        if (conn != null) {
+            try {
+                conn.close();
+                System.out.println("Connection closed.");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        */
+    }
+}
